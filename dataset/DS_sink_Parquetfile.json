@@ -1,0 +1,21 @@
+{
+	"name": "DS_sink_Parquetfile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADE_AprilADE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "adventure.parquet",
+				"fileSystem": "sink"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

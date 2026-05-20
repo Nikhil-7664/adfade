@@ -1,0 +1,13 @@
+{
+	"name": "DS_Source_Copy_Multiple_Tables",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Databaseconn_adventureworks",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

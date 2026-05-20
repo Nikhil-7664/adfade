@@ -1,0 +1,15 @@
+{
+	"name": "nikhil18-df",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "southeastasia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6f872e21-3083-46ca-a280-261f1c21dfac",
+		"tenantId": "efc62235-4d71-449d-9ae7-9eb18c8e9e3c"
+	}
+}
