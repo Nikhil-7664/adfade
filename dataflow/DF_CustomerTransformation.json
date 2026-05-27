@@ -10,9 +10,6 @@
 						"type": "DatasetReference"
 					},
 					"name": "source1"
-				},
-				{
-					"name": "source2"
 				}
 			],
 			"sinks": [
@@ -59,8 +56,6 @@
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
 				"     partitionBy('hash', 1)) ~> source1",
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source2",
 				"union1 select(mapColumn(",
 				"          CustomerID,",
 				"          Title,",
@@ -78,7 +73,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
 				"select1 derive(FullName = concat(Title,' ',FirstName,' ',MiddleName,' ',LastName)) ~> derivedColumn1",
-				"source1, source2 union(byName: false)~> union1",
+				"source1 union(byName: false)~> union1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['TransformedCustomer.csv'],",
