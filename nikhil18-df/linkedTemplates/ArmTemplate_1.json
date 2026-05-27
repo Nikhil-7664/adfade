@@ -13,6 +13,41 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_Source_Copy_Multiple_Tables')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Databaseconn_adventureworks",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Source_SQLDB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Databaseconn_adventureworks",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "SalesLT",
+					"table": "Product"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_sink_Parquetfile')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -102,6 +137,7 @@
 				"lastPublishTime": "2026-05-15T03:19:52Z"
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_Source_SQLDB')]",
 				"[concat(variables('factoryId'), '/datasets/DS_sink_Parquetfile')]"
 			]
 		},
@@ -615,7 +651,10 @@
 				"annotations": [],
 				"lastPublishTime": "2026-05-15T03:19:52Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_Source_SQLDB')]",
+				"[concat(variables('factoryId'), '/datasets/DS_Source_Copy_Multiple_Tables')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/IncrementalLoad')]",
@@ -832,7 +871,10 @@
 				"annotations": [],
 				"lastPublishTime": "2026-05-20T19:44:57Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_Source_Copy_Multiple_Tables')]",
+				"[concat(variables('factoryId'), '/datasets/DS_Source_SQLDB')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Storage_acc_copy_data')]",
@@ -908,6 +950,140 @@
 				"lastPublishTime": "2026-05-12T03:51:33Z"
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_CustomerTransformation')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_Customer_Source_PQ",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_Sink_CSVCustomerPostTransformation",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          CustomerID as integer,",
+						"          NameStyle as boolean,",
+						"          Title as string,",
+						"          FirstName as string,",
+						"          MiddleName as string,",
+						"          LastName as string,",
+						"          Suffix as string,",
+						"          CompanyName as string,",
+						"          SalesPerson as string,",
+						"          EmailAddress as string,",
+						"          Phone as string,",
+						"          PasswordHash as string,",
+						"          PasswordSalt as string,",
+						"          rowguid as string,",
+						"          ModifiedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     inferDriftedColumnTypes: true,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> source1",
+						"source1 select(mapColumn(",
+						"          CustomerID,",
+						"          Title,",
+						"          FirstName,",
+						"          MiddleName,",
+						"          LastName,",
+						"          CompanyName,",
+						"          SalesPerson,",
+						"          EmailAddress,",
+						"          Phone,",
+						"          PasswordHash,",
+						"          PasswordSalt,",
+						"          ModifiedDate",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 derive(FullName = concat(Title,' ',FirstName,' ',MiddleName,' ',LastName)) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ExecDataflow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_CustomerTransformation",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "None",
+							"cacheSinks": {
+								"firstRowOnly": true
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_CustomerTransformation')]"
+			]
 		}
 	]
 }
