@@ -982,6 +982,9 @@
 						},
 						{
 							"name": "derivedColumn1"
+						},
+						{
+							"name": "union1"
 						}
 					],
 					"scriptLines": [
@@ -1006,8 +1009,9 @@
 						"     validateSchema: false,",
 						"     inferDriftedColumnTypes: true,",
 						"     ignoreNoFilesFound: false,",
-						"     format: 'parquet') ~> source1",
-						"source1 select(mapColumn(",
+						"     format: 'parquet',",
+						"     partitionBy('hash', 1)) ~> source1",
+						"union1 select(mapColumn(",
 						"          CustomerID,",
 						"          Title,",
 						"          FirstName,",
@@ -1024,8 +1028,10 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
 						"select1 derive(FullName = concat(Title,' ',FirstName,' ',MiddleName,' ',LastName)) ~> derivedColumn1",
+						"source1 union(byName: false)~> union1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     partitionFileNames:['TransformedCustomer.csv'],",
 						"     umask: 0022,",
 						"     preCommands: [],",
 						"     postCommands: [],",
