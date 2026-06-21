@@ -5,14 +5,35 @@
 		"factoryName": {
 			"value": "nikhil18-df"
 		},
+		"AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_password": {
+			"value": ""
+		},
 		"LS_ADE_AprilADE_accountKey": {
 			"value": ""
 		},
 		"LS_Databaseconn_adventureworks_password": {
 			"value": ""
 		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://retailproject18.dfs.core.windows.net/"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"value": "azuresql14.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"value": "free-sql-db-1664024"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"value": "azuresql"
+		},
 		"DS_Source_Rest_JSON_Data_properties_typeProperties_url": {
 			"value": "https://jsonplaceholder.typicode.com/"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com/"
 		},
 		"LS_ADE_AprilADE_properties_typeProperties_url": {
 			"value": "https://morningbatchade.dfs.core.windows.net/"
